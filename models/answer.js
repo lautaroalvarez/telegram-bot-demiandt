@@ -16,7 +16,7 @@ const saveAnswer = function(dataAns) {
     dataAns.text = dataAns.text.toLowerCase();
     if (typeof answers[dataAns.text] === 'undefined')
       answers[dataAns.text] = [];
-    answers.push(dataAns.response);
+    answers[dataAns.text].push(dataAns.response);
     resolve({
       statusCode: 201,
       data: "Guardé '" + dataAns.response + "' todo piola."
@@ -40,7 +40,7 @@ const getAnswer = function(dataText) {
     });
   });
 }
-const removeAnswers = function(dataText) {
+const dropAnswer = function(dataText) {
   return new Promise(function(resolve) {
     resolve();
   });
@@ -57,6 +57,6 @@ const getAnswers = function(dataText) {
 module.exports = {
   saveAnswer,
   getAnswer,
-  removeAnswers,
+  dropAnswer,
   getAnswers
 }

@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const axios = require('axios');
-const wordModel = require('./models/words');
+const models = require('./models');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
@@ -14,11 +14,18 @@ app.post('/new-message', function(req, res) {
   if (!message)
     return;
   console.log("Recibo texto: " + message.text);
-  wordModel.getAnswer({ text: message.text })
+  models.Command.searchInText(message.text)
+    .then(function(command) {
+      console.log("command");
+      console.log(command);
+      if (command)
+        return models.Command.exec(command, message.text);
+      return models.Answer.getAnswer({ text: message.text });
+    })
     .then(function(dataResp) {
       console.log("Respondo:");
       console.log(dataResp);
-      axios.post('https://api.telegram.org/bot420103356:AAHcOPrbMbpbwdGrYAdJ_hejYzJeciC3obg/sendMessage', {
+      enviarMensaje({
         chat_id: message.chat.id,
         text: dataResp.data
       });
@@ -31,6 +38,9 @@ app.post('/new-message', function(req, res) {
     });
 });
 
+function enviarMensaje(data) {
+  axios.post('https://api.telegram.org/bot420103356:AAHcOPrbMbpbwdGrYAdJ_hejYzJeciC3obg/sendMessage', data);
+}
 // Finally, start our server
 app.listen(3000, function() {
   console.log('Telegram app listening on port 3000!');
