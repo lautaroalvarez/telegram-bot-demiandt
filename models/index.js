@@ -1,9 +1,11 @@
-const Answer = require('./answer');
-const Command = require('./command');
-const Auth = require('./auth');
+'use strict';
+
+const Message = require('./message');
+const User = require('./user');
+const Chat = require('./chat');
 
 module.exports = {
-  Answer,
-  Command,
-  Auth
+  Message,
+  User,
+  Chat
 }
