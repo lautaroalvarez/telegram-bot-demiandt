@@ -19,7 +19,7 @@ const saveAnswer = function(dataAns) {
     answers[dataAns.text].push(dataAns.response);
     resolve({
       statusCode: 201,
-      data: "Guardé '" + dataAns.response + "' todo piola."
+      message: "Guardé '" + dataAns.response + "' todo piola."
     });
   });
 }

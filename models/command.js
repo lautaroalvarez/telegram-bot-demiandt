@@ -10,8 +10,8 @@ const searchInText = function(text) {
     resolve(cmd);
   });
 }
-const exec = function(command, text) {
-  text = text.substring(command.length + 2);
+const exec = function(command, msg) {
+  var text = msg.text.substring(command.length + 2);
   console.log("saco comando");
   console.log(text);
   switch (command) {
@@ -39,7 +39,7 @@ const guardarPalabra = function(text) {
     console.log('no hay delimitador');
     return Promise.resolve({
       statusCode: 400,
-      data: 'No entiendo que me decís. Hablá bien gil!'
+      message: 'No entiendo que me decís. Hablá bien gil!'
     });
   }
   var parts = text.split(delimit);
@@ -48,7 +48,7 @@ const guardarPalabra = function(text) {
   return answerModel.saveAnswer({
     text: parts[0],
     response: parts[1]
-  })
+  });
 }
 const mostrarPalabras = function(text) {
   return new Promise(function(resolve, reject) {
@@ -56,9 +56,6 @@ const mostrarPalabras = function(text) {
       .then(function(dataAnswers) {
         var response = 'Palabras guardadas:\n';
         Object.keys(dataAnswers.data).map(function(key) {
-          console.log("una key: " + key);
-          console.log("hay:");
-          console.log(dataAnswers.data[key]);
           response += key + ':\n';
           dataAnswers.data[key].map(function(elemR) {
             response += '  ' + elemR + '\n';
@@ -66,7 +63,7 @@ const mostrarPalabras = function(text) {
         });
         resolve({
           statusCode: 200,
-          data: response
+          message: response
         });
       })
       .catch(reject);
