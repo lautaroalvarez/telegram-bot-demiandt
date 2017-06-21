@@ -1,3 +1,7 @@
+'use strict';
+
+const models = require('../models');
+
 var answers = {
   'hola': ['Hola wachin!'],
   'chau': ['Nos vimo', 'Otro nos vimo'],
@@ -45,18 +49,43 @@ const dropAnswer = function(dataText) {
     resolve();
   });
 }
-const getAnswers = function(dataText) {
-  return new Promise(function(resolve) {
-    resolve({
-      statusCode: 200,
-      data: answers
+const getAnswers = function() {
+  return models.Answer.find();
+}
+
+const searchAnswerFromMessage = function(msg) {
+  return models.Answer.find()
+    .then(function(dataAnswers) {
+      return dataAnswers.find(function(elem) {
+        return (new RegExp(elem.matching.text, 'i')).test(msg.text);
+      });
     })
+    .then(function(dataAnswers) {
+      if (!dataAnswers)
+        return Promise.reject('No hay respuesta');
+      return dataAnswers;
+    })
+}
+
+const create = function(dataAns) {
+  // por ahora solo type=text
+  var newAnswer = new models.Answer({
+    type: dataAns.type,
+    matching: {
+      text: dataAns.matching
+    },
+    response: {
+      dataS1: dataAns.response
+    }
   });
+  return newAnswer.save();
 }
 
 module.exports = {
   saveAnswer,
   getAnswer,
   dropAnswer,
-  getAnswers
+  getAnswers,
+  searchAnswerFromMessage,
+  create
 }

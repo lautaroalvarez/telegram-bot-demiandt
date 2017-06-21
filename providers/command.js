@@ -1,6 +1,7 @@
 const commandList = ['guardar_palabra', 'mostrar_palabras', 'eliminar_palabra'];
 const delimit = ' - ';
 const answerModel = require('./answer');
+const models = require('../models');
 
 const searchInText = function(text) {
   return new Promise(function(resolve, reject) {
@@ -12,17 +13,32 @@ const searchInText = function(text) {
 }
 const exec = function(command, msg) {
   var text = msg.text.substring(command.length + 2);
-  console.log("saco comando");
-  console.log(text);
   switch (command) {
     case 'guardar_palabra':
-      return guardarPalabra(text);
+      return guardarPalabra(text)
+        .then(function(answer) {
+          return {
+            statusCode: 201,
+            message: 'Guardé todo piola jefeh:\n -Texto: ' + answer.matching.text + '\n -Respuesta: ' + answer.response.dataS1
+          }
+        });
       break;
     case 'mostrar_palabras':
       return mostrarPalabras(text);
       break;
     case 'eliminar_palabra':
-      return answerModel.dropAnswer(text);
+      return eliminarPalabra(text)
+        .then(function(answer) {
+          if (!answer)
+            return {
+              statusCode: 401,
+              message: 'No encontré nada para borrar. Mandame algo bien escrito gil!'
+            }
+          return {
+            statusCode: 200,
+            message: 'Borré todo piola jefeh:\n -Texto: ' + answer.matching.text + '\n -Respuesta: ' + answer.response.dataS1
+          }
+        });
       break;
     default:
       return Promise.reject({
@@ -33,41 +49,38 @@ const exec = function(command, msg) {
 }
 
 const guardarPalabra = function(text) {
-  console.log("llego a guardarPalabra");
-  console.log(text);
   if (text.indexOf(delimit) < 0) {
-    console.log('no hay delimitador');
     return Promise.resolve({
       statusCode: 400,
       message: 'No entiendo que me decís. Hablá bien gil!'
     });
   }
   var parts = text.split(delimit);
-  console.log("divido por delimitador");
-  console.log(parts);
-  return answerModel.saveAnswer({
-    text: parts[0],
+  return answerModel.create({
+    type: 'text',
+    matching: parts[0],
     response: parts[1]
   });
 }
+
+const eliminarPalabra = function(text) {
+  // return answerModel.removeAnswer()
+}
+
 const mostrarPalabras = function(text) {
-  return new Promise(function(resolve, reject) {
-    answerModel.getAnswers()
-      .then(function(dataAnswers) {
-        var response = 'Palabras guardadas:\n';
-        Object.keys(dataAnswers.data).map(function(key) {
-          response += key + ':\n';
-          dataAnswers.data[key].map(function(elemR) {
-            response += '  ' + elemR + '\n';
-          });
-        });
-        resolve({
-          statusCode: 200,
-          message: response
-        });
-      })
-      .catch(reject);
-  });
+  return answerModel.getAnswers()
+    .then(function(answers) {
+      var response = 'Palabras guardadas:\n';
+      answers.map(function(elem) {
+        response += elem._id + ':\n';
+        response += ' -T: ' + elem.matching.text + '\n';
+        response += ' -R: ' + elem.response.dataS1 + '\n';
+      });
+      return {
+        statusCode: 200,
+        message: response
+      }
+    });
 }
 
 module.exports = {

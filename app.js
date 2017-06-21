@@ -42,24 +42,23 @@ bot.on('text', (msgOriginal) => {
     .then(function(msg) {
       console.log('vuelve de save');
       console.log(msg);
-      if (typeof msg.entities !== 'undefined') {
-        var esCmd = msg.entities.find(function(elem) {
+      if (typeof msgOriginal.entities !== 'undefined') {
+        var esCmd = msgOriginal.entities.find(function(elem) {
           return elem.type = 'bot_command';
         });
         if (esCmd)
-          return new Promise.reject('Ya se analizó, es cmd.');
+          return Promise.reject('Ya se analizó, es cmd.');
       }
       return msg;
     })
     .then(function(msg) {
       console.log('no es cmd');
-      return providers.Answer.getAnswer({ text: msg.text })
+      return providers.Answer.searchAnswerFromMessage(msg);
     })
     .then(function(dataResp) {
       console.log("Respondo:");
       console.log(dataResp);
-      if (dataResp.data)
-        msgOriginal.reply.text(dataResp.data);
+      msgOriginal.reply.text(dataResp.response.dataS1);
     })
     .catch(function(dataErr) {
       console.log("No Respondo:");
