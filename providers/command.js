@@ -15,30 +15,13 @@ const exec = function(command, msg) {
   var text = msg.text.substring(command.length + 2);
   switch (command) {
     case 'guardar_palabra':
-      return guardarPalabra(text)
-        .then(function(answer) {
-          return {
-            statusCode: 201,
-            message: 'Guardé todo piola jefeh:\n -Texto: ' + answer.matching.text + '\n -Respuesta: ' + answer.response.dataS1
-          }
-        });
+      return guardarPalabra(text, msg);
       break;
     case 'mostrar_palabras':
-      return mostrarPalabras(text);
+      return mostrarPalabras(text, msg);
       break;
     case 'eliminar_palabra':
-      return eliminarPalabra(text)
-        .then(function(borrado) {
-          if (!borrado)
-            return {
-              statusCode: 401,
-              message: 'No encontré nada para borrar. Mandame algo bien escrito gil!'
-            }
-          return {
-            statusCode: 200,
-            message: 'Borré todo piola jefeh'
-          }
-        });
+      return eliminarPalabra(text, msg);
       break;
     default:
       return Promise.reject({
@@ -48,26 +31,30 @@ const exec = function(command, msg) {
   }
 }
 
-const guardarPalabra = function(text) {
-  if (text.indexOf(delimit) < 0) {
-    return Promise.resolve({
-      statusCode: 400,
-      message: 'No entiendo que me decís. Hablá bien gil!'
-    });
-  }
+const guardarPalabra = function(text, msg) {
+  if (text.indexOf(delimit) < 0)
+    return msg.reply.text('No entiendo que me decís. Hablá bien gil!');
   var parts = text.split(delimit);
   return answerModel.create({
     type: 'text',
     matching: parts[0],
     response: parts[1]
-  });
+  })
+    .then(function(answer) {
+      return msg.reply.text('Guardé todo piola jefeh:\n -Texto: ' + answer.matching.text + '\n -Respuesta: ' + answer.response.dataS1);
+    });
 }
 
-const eliminarPalabra = function(text) {
-  return answerModel.remove(text);
+const eliminarPalabra = function(text, msg) {
+  return answerModel.remove(text)
+    .then(function(borrado) {
+      if (!borrado)
+        return msg.reply.text('No encontré nada para borrar. Mandame algo bien escrito gil!');
+      return msg.reply.text('Borré todo piola jefeh');
+    });
 }
 
-const mostrarPalabras = function(text) {
+const mostrarPalabras = function(text, msg) {
   return answerModel.getAnswers()
     .then(function(answers) {
       var response = 'Palabras guardadas:\n';
@@ -76,10 +63,7 @@ const mostrarPalabras = function(text) {
         response += ' -T: ' + elem.matching.text + '\n';
         response += ' -R: ' + elem.response.dataS1 + '\n';
       });
-      return {
-        statusCode: 200,
-        message: response
-      }
+      return msg.reply.text(response);
     });
 }
 
