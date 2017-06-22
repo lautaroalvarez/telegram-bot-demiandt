@@ -1,54 +1,8 @@
 'use strict';
 
+const mongoose = require('mongoose');
 const models = require('../models');
 
-var answers = {
-  'hola': ['Hola wachin!'],
-  'chau': ['Nos vimo', 'Otro nos vimo'],
-  'dos palabras': ['aa hablas mucho eh']
-};
-
-const saveAnswer = function(dataAns) {
-  return new Promise(function(resolve, reject) {
-    if (typeof dataAns.text == 'undefined' || typeof dataAns.response == 'undefined') {
-      reject({
-        statusCode: 400,
-        message: "Falta data"
-      });
-      return;
-    }
-    dataAns.text = dataAns.text.toLowerCase();
-    if (typeof answers[dataAns.text] === 'undefined')
-      answers[dataAns.text] = [];
-    answers[dataAns.text].push(dataAns.response);
-    resolve({
-      statusCode: 201,
-      message: "Guardé '" + dataAns.response + "' todo piola."
-    });
-  });
-}
-const getAnswer = function(dataText) {
-  return new Promise(function(resolve, reject) {
-    dataText.text = dataText.text.toLowerCase();
-    if (typeof answers[dataText.text] == 'undefined' || answers[dataText.text].length == 0) {
-      reject({
-        statusCode: 404,
-        message: "No hay respuesta"
-      });
-      return;
-    }
-    var answer = answers[dataText.text][Math.floor(Math.random() * answers[dataText.text].length)]
-    resolve({
-      statusCode: 200,
-      data: answer
-    });
-  });
-}
-const dropAnswer = function(dataText) {
-  return new Promise(function(resolve) {
-    resolve();
-  });
-}
 const getAnswers = function() {
   return models.Answer.find();
 }
@@ -81,11 +35,42 @@ const create = function(dataAns) {
   return newAnswer.save();
 }
 
+const findByText = function(text) {
+  if (mongoose.Types.ObjectId.isValid(text))
+    return models.Answer.find({
+      _id: text
+    });
+  console.log("no es id");
+  return models.Answer.find({
+    'matching.text': text
+  });
+}
+
+const remove = function(text) {
+  console.log("a ver si es id");
+  console.log(text);
+  return findByText(text)
+    .then(function(dataAnswer) {
+      console.log("trajo dataAnswer");
+      console.log(dataAnswer);
+      if (dataAnswer.length == 0)
+        return false;
+      var ids = dataAnswer.map(function(elem) {
+        return elem._id
+      });
+      console.log("borro los ids");
+      console.log(ids);
+      return models.Answer.remove({
+        _id: {
+          $in: ids
+        }
+      });
+    });
+}
+
 module.exports = {
-  saveAnswer,
-  getAnswer,
-  dropAnswer,
   getAnswers,
   searchAnswerFromMessage,
-  create
+  create,
+  remove
 }

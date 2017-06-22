@@ -7,7 +7,7 @@ require('dotenv').load();
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://' + process.env.MONGODB_HOST + ':' + process.env.MONGODB_PORT + '/' + process.env.MONGODB_DB);
 
-const bot = new TeleBot('420103356:AAHcOPrbMbpbwdGrYAdJ_hejYzJeciC3obg');
+const bot = new TeleBot(process.env.BOT_ID);
 
 bot.on(/^\//, function(msg, props) {
   console.log('entra a comando');

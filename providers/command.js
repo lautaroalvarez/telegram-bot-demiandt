@@ -28,15 +28,15 @@ const exec = function(command, msg) {
       break;
     case 'eliminar_palabra':
       return eliminarPalabra(text)
-        .then(function(answer) {
-          if (!answer)
+        .then(function(borrado) {
+          if (!borrado)
             return {
               statusCode: 401,
               message: 'No encontré nada para borrar. Mandame algo bien escrito gil!'
             }
           return {
             statusCode: 200,
-            message: 'Borré todo piola jefeh:\n -Texto: ' + answer.matching.text + '\n -Respuesta: ' + answer.response.dataS1
+            message: 'Borré todo piola jefeh'
           }
         });
       break;
@@ -64,7 +64,7 @@ const guardarPalabra = function(text) {
 }
 
 const eliminarPalabra = function(text) {
-  // return answerModel.removeAnswer()
+  return answerModel.remove(text);
 }
 
 const mostrarPalabras = function(text) {
