@@ -1,25 +1,20 @@
 const permissions = {
-  'all': ['laucha_sl']
+  'all': [231737762]
 }
-const msg_no_permission = 'A vos no te respondo nada gil!';
 
-const canExec = function(cmd, msg) {
+const canCommand = function(data) {
   return new Promise(function(resolve, reject) {
-    if (permissions.all.indexOf(msg.from.username) >= 0) {
-      resolve();
-      return;
-    }
-    if (typeof permissions[cmd] !== 'undefined' && permissions[cmd].indexOf(msg.from.username) >= 0) {
+    if (permissions.all.indexOf(data.msg.from.id) >= 0) {
       resolve();
       return;
     }
     reject({
       statusCode: 401,
-      message: msg_no_permission
+      message: 'No puede ejecutar'
     });
   });
 }
 
 module.exports = {
-  canExec
+  canCommand
 }

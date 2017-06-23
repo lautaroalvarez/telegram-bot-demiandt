@@ -11,7 +11,7 @@ var userSchema = new Schema({
   language_code: String,
   status: {
     type: String,
-    enum: ['none', 'np_waitingtext', 'np_waitingreponse', 'ep_waitingtextorid'],
+    enum: ['none', 'np_waitingtext', 'np_waitingreponse', 'ep_waitingtextorid', 'mg_waitingmsg'],
     default: 'none'
   }
 }, {

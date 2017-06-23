@@ -12,8 +12,6 @@ const bot = new TeleBot({
   token: process.env.BOT_ID
 });
 
-var messages = [];
-
 bot.mod('message', (data, props) => {
   data.message.internalData = {};
   data.message.promiseAnalizer = providers.Message.save(data.message)
@@ -29,6 +27,9 @@ bot.on('/ayuda', msg => {
   msg.promiseAnalizer
     .then(function(msgModif) {
       msg = msgModif;
+      return providers.Auth.canCommand({msg});
+    })
+    .then(function() {
       if (msg.from.status != 'none')
         return providers.User.saveChange({
           query: {
@@ -44,7 +45,8 @@ bot.on('/ayuda', msg => {
       let replyMarkup = bot.keyboard([
         [bot.button('/nueva_palabra')],
         [bot.button('/mostrar_palabras')],
-        [bot.button('/eliminar_palabra')]
+        [bot.button('/eliminar_palabra')],
+        [bot.button('/mensaje_a_grupo')],
       ], {resize: true});
       return bot.sendMessage(msg.chat.id, 'Ahí te tiré opciones loco', {replyMarkup});
     })
@@ -57,6 +59,9 @@ bot.on('/mostrar_palabras', msg => {
   msg.promiseAnalizer
     .then(function(msgModif) {
       msg = msgModif;
+      return providers.Auth.canCommand({msg});
+    })
+    .then(function() {
       return providers.Answer.getAnswers();
     })
     .then(function(answers) {
@@ -78,6 +83,9 @@ bot.on('/nueva_palabra', msg => {
   msg.promiseAnalizer
     .then(function(msgModif) {
       msg = msgModif;
+      return providers.Auth.canCommand({msg});
+    })
+    .then(function() {
       return providers.User.saveChange({
         query: {
           _id: msg.from._id,
@@ -96,6 +104,9 @@ bot.on('/eliminar_palabra', msg => {
   msg.promiseAnalizer
     .then(function(msgModif) {
       msg = msgModif;
+      return providers.Auth.canCommand({msg});
+    })
+    .then(function() {
       return providers.User.saveChange({
         query: {
           _id: msg.from._id,
@@ -107,6 +118,27 @@ bot.on('/eliminar_palabra', msg => {
     })
     .then(function(user) {
       return bot.sendMessage(msg.chat.id, 'Pasame el texto lanzador de la respuesta que querés eliminar (si te sabés el id también)', {replyMarkup: 'hide'});
+    });
+});
+
+bot.on('/mensaje_a_grupo', msg => {
+  msg.promiseAnalizer
+    .then(function(msgModif) {
+      msg = msgModif;
+      return providers.Auth.canCommand({msg});
+    })
+    .then(function() {
+      return providers.User.saveChange({
+        query: {
+          _id: msg.from._id,
+        },
+        changes: {
+          status: 'mg_waitingmsg'
+        }
+      });
+    })
+    .then(function(user) {
+      return bot.sendMessage(msg.chat.id, 'Pasame el texto que querés mandar en el grupo', {replyMarkup: 'hide'});
     });
 });
 
@@ -124,11 +156,11 @@ bot.on('*', (msg) => {
       return msg;
     })
     .then(function(msg) {
-      statusHandler[msg.from.status]({msg});
+      statusHandler[msg.from.status]({msg, bot});
     })
     .catch(function(dataErr) {
-      console.log("No Respondo:");
-      console.log(dataErr);
+      // console.log("No Respondo:");
+      // console.log(dataErr);
     });
 });
 
