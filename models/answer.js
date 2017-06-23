@@ -16,7 +16,26 @@ var answerSchema = new Schema({
     }
   },
   response: {
-    dataS1: String
+    text: String,
+    sticker: {
+      file_id: String,
+      width: Number,
+      height: Number,
+      thumb: {
+        file_id: String,
+        width: Number,
+        height: Number,
+        file_size: Number
+      },
+      emoji: String,
+      file_size: Number
+    },
+    photo: [{
+      file_id: String,
+      width: Number,
+      height: Number,
+      file_size: Number
+    }]
   }
 }, {
     timestamps: true

@@ -11,17 +11,14 @@ const searchInText = function(text) {
     resolve(cmd);
   });
 }
-const exec = function(command, msg) {
-  var text = msg.text.substring(command.length + 2);
-  switch (command) {
+const exec = function(data) {
+  var text = data.message.text.substring(data.command.length + 2);
+  switch (data.command) {
     case 'guardar_palabra':
-      return guardarPalabra(text, msg);
-      break;
-    case 'mostrar_palabras':
-      return mostrarPalabras(text, msg);
+      return guardarPalabra(text, data.message);
       break;
     case 'eliminar_palabra':
-      return eliminarPalabra(text, msg);
+      return eliminarPalabra(text, data.message);
       break;
     default:
       return Promise.reject({
@@ -54,18 +51,6 @@ const eliminarPalabra = function(text, msg) {
     });
 }
 
-const mostrarPalabras = function(text, msg) {
-  return answerModel.getAnswers()
-    .then(function(answers) {
-      var response = 'Palabras guardadas:\n';
-      answers.map(function(elem) {
-        response += elem._id + ':\n';
-        response += ' -T: ' + elem.matching.text + '\n';
-        response += ' -R: ' + elem.response.dataS1 + '\n';
-      });
-      return msg.reply.text(response);
-    });
-}
 
 module.exports = {
   searchInText,

@@ -11,6 +11,9 @@ const save = function(msg) {
     .then(function(msg) {
       var newMsg = models.Message(msg);
       return newMsg.save();
+    })
+    .then(function(newMsg) {
+      return models.Message.findById(newMsg._id).populate('from chat');
     });
 }
 
