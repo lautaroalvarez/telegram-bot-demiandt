@@ -5,6 +5,7 @@ const Promise = require('promise');
 var userParams = {};
 
 const sendMessage = function(msg, reply) {
+  providers.Logger.logAnswer(msg);
   if (msg.response.text)
     return sendTextMessage(msg, reply);
   if (msg.response.sticker && msg.response.sticker.file_id)

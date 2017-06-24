@@ -23,6 +23,7 @@ const np_waitingtext = function(data) {
     changes: {status: 'np_waitingresponse'}
   })
     .then(function(userSaved) {
+      console.log('<- Le pido la respuesta que quiere guardar');
       return data.msg.reply.text('Ahora decime la respuesta');
     })
 }
@@ -45,6 +46,7 @@ const np_waitingresponse = function(data) {
       });
     })
     .then(function(userSaved) {
+      console.log('<- Le aviso que guardé todo');
       return data.msg.reply.text('Guardé todo piola jefeh');
     });
 }
@@ -61,8 +63,11 @@ const ep_waitingtextorid = function(data) {
       });
     })
     .then(function(userSaved) {
-      if (!borrado)
+      if (!borrado) {
+        console.log('<- Le aviso que no encontré nada para borrar');
         return data.msg.reply.text('No encontré nada para borrar. Mandame algo bien escrito gil!');
+      }
+      console.log('<- Le aviso que borré todo ok');
       return data.msg.reply.text('Borré todo piola jefeh');
     });
 }
@@ -76,8 +81,8 @@ const mg_waitingmsg = function(data) {
         return data.bot.sendMessage(groupID, data.msg.text);
       if (data.msg.sticker && data.msg.sticker.file_id)
         return data.bot.sendSticker(groupID, data.msg.sticker.file_id);
-      if (data.msg.photo)
-        return sendPhoto(groupID, data.msg.photo);
+      if (data.msg.photo && data.msg.photo.length > 0)
+        return data.bot.sendPhoto(groupID, data.msg.photo[0].file_id);
       envio = false;
     })
     .then(function(newAnswer) {
@@ -87,8 +92,11 @@ const mg_waitingmsg = function(data) {
       });
     })
     .then(function(userSaved) {
-      if (!envio)
+      if (!envio) {
+        console.log('<- Le aviso que no entendí que mandar al grupo');
         return data.msg.reply.text('No se que me mandaste, pero no lo pude reenviar');
+      }
+      console.log('<- Le aviso que mandé al grupo ok');
       return data.msg.reply.text('Alto mensaje mandamo eh');
     });
 }

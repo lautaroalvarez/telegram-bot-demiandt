@@ -1,5 +1,5 @@
 const permissions = {
-  'all': [231737762]
+  'all': [231737762, 240669092]
 }
 
 const canCommand = function(data) {
@@ -15,6 +15,20 @@ const canCommand = function(data) {
   });
 }
 
+const isPrivateChat = function(data) {
+  return new Promise(function(resolve, reject) {
+    if (data.msg.from.id == data.msg.chat.id) {
+      resolve();
+      return;
+    }
+    reject({
+      statusCode: 401,
+      message: 'No es privado'
+    });
+  });
+}
+
 module.exports = {
-  canCommand
+  canCommand,
+  isPrivateChat
 }

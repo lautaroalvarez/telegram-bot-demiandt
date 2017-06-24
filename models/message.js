@@ -14,14 +14,14 @@ var messageSchema = new Schema({
     type: Schema.ObjectId,
     ref: 'Chat'
   },
-  forward_from: {
-    type: Schema.ObjectId,
-    ref: 'User'
-  },
-  forward_from_chat: {
-    type: Schema.ObjectId,
-    ref: 'Chat'
-  },
+  // forward_from: {
+  //   type: Schema.ObjectId,
+  //   ref: 'User'
+  // },
+  // forward_from_chat: {
+  //   type: Schema.ObjectId,
+  //   ref: 'Chat'
+  // },
   forward_from_message_id: Number,
   forward_date: Number,
   reply_to_message: {

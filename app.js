@@ -18,6 +18,7 @@ bot.mod('message', (data, props) => {
     .then(function(msg) {
       data.message.from = msg.from;
       data.message.chat = msg.chat;
+      providers.Logger.logMessage(msg);
       return data.message;
     });
   return data;
@@ -28,6 +29,9 @@ bot.on('/ayuda', msg => {
     .then(function(msgModif) {
       msg = msgModif;
       return providers.Auth.canCommand({msg});
+    })
+    .then(function() {
+      return providers.Auth.isPrivateChat({msg});
     })
     .then(function() {
       if (msg.from.status != 'none')
@@ -48,6 +52,7 @@ bot.on('/ayuda', msg => {
         [bot.button('/eliminar_palabra')],
         [bot.button('/mensaje_a_grupo')],
       ], {resize: true});
+      console.log('<- Le muestro el menú de opciones');
       return bot.sendMessage(msg.chat.id, 'Ahí te tiré opciones loco', {replyMarkup});
     })
     .catch(function(err) {
@@ -62,6 +67,9 @@ bot.on('/mostrar_palabras', msg => {
       return providers.Auth.canCommand({msg});
     })
     .then(function() {
+      return providers.Auth.isPrivateChat({msg});
+    })
+    .then(function() {
       return providers.Answer.getAnswers();
     })
     .then(function(answers) {
@@ -71,6 +79,7 @@ bot.on('/mostrar_palabras', msg => {
         response += ' -T: ' + elem.matching.text + '\n';
         response += ' -R: ' + elem.response.text + '\n';
       });
+      console.log('<- Le muestro las palabras guardadas');
       return bot.sendMessage(msg.chat.id, response, {replyMarkup: 'hide'});
     })
     .catch(function(message) {
@@ -86,6 +95,9 @@ bot.on('/nueva_palabra', msg => {
       return providers.Auth.canCommand({msg});
     })
     .then(function() {
+      return providers.Auth.isPrivateChat({msg});
+    })
+    .then(function() {
       return providers.User.saveChange({
         query: {
           _id: msg.from._id,
@@ -96,6 +108,7 @@ bot.on('/nueva_palabra', msg => {
       });
     })
     .then(function(user) {
+      console.log('<- Le pido el lanzador de la respuesta');
       return bot.sendMessage(msg.chat.id, 'Pasame el texto lanzador de la respuesta:', {replyMarkup: 'hide'});
     });
 });
@@ -105,6 +118,9 @@ bot.on('/eliminar_palabra', msg => {
     .then(function(msgModif) {
       msg = msgModif;
       return providers.Auth.canCommand({msg});
+    })
+    .then(function() {
+      return providers.Auth.isPrivateChat({msg});
     })
     .then(function() {
       return providers.User.saveChange({
@@ -117,6 +133,7 @@ bot.on('/eliminar_palabra', msg => {
       });
     })
     .then(function(user) {
+      console.log('<- Le pido el lanzador de la respuesta para eliminar');
       return bot.sendMessage(msg.chat.id, 'Pasame el texto lanzador de la respuesta que querés eliminar (si te sabés el id también)', {replyMarkup: 'hide'});
     });
 });
@@ -126,6 +143,9 @@ bot.on('/mensaje_a_grupo', msg => {
     .then(function(msgModif) {
       msg = msgModif;
       return providers.Auth.canCommand({msg});
+    })
+    .then(function() {
+      return providers.Auth.isPrivateChat({msg});
     })
     .then(function() {
       return providers.User.saveChange({
@@ -138,6 +158,7 @@ bot.on('/mensaje_a_grupo', msg => {
       });
     })
     .then(function(user) {
+      console.log('<- Le pido el texto que quiere mandar al grupo');
       return bot.sendMessage(msg.chat.id, 'Pasame el texto que querés mandar en el grupo', {replyMarkup: 'hide'});
     });
 });
